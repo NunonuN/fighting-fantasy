@@ -130,7 +130,7 @@ class HouseOfHellTracker:
 
     # increment children_visited count for PARENT node
     if len(self.current_path) > 1:
-      parent_sum = self.current_path[-2]
+      parent_num = self.current_path[-2]
       parent_node = self.tree[parent_num]
       if number in parent_node.children.values():
         parent_node.children_visited += 1
