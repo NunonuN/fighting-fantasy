@@ -1,0 +1,14 @@
+[project]
+name = "fighting-fantasy.house-of-hell"
+version = "0.1.0"
+description = "Tree tracker for the House of Hell Fighting Fantasy book."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.uv]
+package = true
+
+[project.scripts]
+hell-tracker = "house_of_hell:main"
+hoh = "house_of_hell:main"
