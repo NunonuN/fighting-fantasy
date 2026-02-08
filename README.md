@@ -79,7 +79,7 @@ The tracker uses terminal colours and symbols:
 
 ## 📄 License
 
-MIT License
+[MIT License](./LICENSE)
 
 ```text
 💀 🗡️ HOUSE OF HELL TREE 🗡️ 💀
