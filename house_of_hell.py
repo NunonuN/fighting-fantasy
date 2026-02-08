@@ -346,7 +346,16 @@ class HouseOfHellTracker:
     print(f"⚠️  Incomplete: {incomplete}")
     
     # print("\nCurrent path:", " → ".join(map(str, self.current_path[-5:])))
-    print("\nCurrent path:", " → ".join(map(str, self.current_path)))
+    # print("\nCurrent path:", " → ".join(map(str, self.current_path)))
+    if self.current_path:
+      current = self.current_path[-1]
+      highlighted_path = ' → '.join(
+        f"\033[30;103m{n}\033[0m" if n == current else str(n)
+        for n in self.current_path
+      )
+      print("\nCurrent path:", highlighted_path)
+    else:
+      print("\nCurrent path: (at start)")
   
 
   def backtrack(self) -> None:
