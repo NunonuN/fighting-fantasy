@@ -331,19 +331,26 @@ class HouseOfHellTracker:
 
   def show_tree_overview(self) -> None:
     """Show overview of explored tree"""
-    title = "\n📖 ═══  HOUSE OF 💀HELL💀 TREE OVERVIEW  ═══ 📖\n"
-    print(title)
+    # title = "\n📖 ═══  HOUSE OF 💀HELL💀 TREE OVERVIEW  ═══ 📖\n"
+    # print(title)
     # print("🗡️".ljust(len_title - 19, '═'))
     # print("=" * 50)
+    print("╭═══════════════ ⚔️ HOUSE OF HELL OVERVIEW ⚔️ ═══════════════╮")
     
     deaths = sum(1 for node in self.tree.values() if node.death)
     battles = sum(1 for node in self.tree.values() if node.battle)
     incomplete = sum(1 for node in self.tree.values() if not node.complete)
     
-    print(f"Total paragraphs: {len(self.tree)}")
-    print(f"💀  Deaths: {deaths}")
-    print(f"⚔️  Battles: {battles}")
-    print(f"⚠️  Incomplete: {incomplete}")
+    print(f"│ Total Paragraphs: {len(self.tree):<40} │")
+    print(
+      f"│ 💀  Deaths: {deaths:<3} │  ⚔️  Battles: {battles:<3} "
+      f"│  ⚠️  Incomplete: {incomplete:<3} │"
+    )
+    print("╰════════════════════════════════════════════════════════════╯")
+    # print(f"Total paragraphs: {len(self.tree)}")
+    # print(f"💀  Deaths: {deaths}")
+    # print(f"⚔️  Battles: {battles}")
+    # print(f"⚠️  Incomplete: {incomplete}")
     
     # print("\nCurrent path:", " → ".join(map(str, self.current_path[-5:])))
     # print("\nCurrent path:", " → ".join(map(str, self.current_path)))
@@ -377,8 +384,12 @@ class HouseOfHellTracker:
       print(f"Root paragraph {root} is not in the tree yet.")
       return
 
-    title = "\n💀 🗡️  HOUSE OF HELL TREE  🗡️ 💀\n"
-    print(title)
+    # title = "\n💀 🗡️  HOUSE OF HELL TREE  🗡️ 💀\n"
+    # print(title)
+    print("╭═════════════════ 💀 HOUSE OF HELL TREE 💀 ═════════════════╮")
+    print(f"│ Current paragraph: {self.current_path[-1]:<39} │")
+    print("╰────────────────────────────────────────────────────────────╯")
+
 
     # fast lookup for current path highlighting
     current_set = set(self.current_path)
@@ -463,10 +474,25 @@ def main() -> None:
   """Main game loop"""
   tracker = HouseOfHellTracker()
   
-  title = "🏰 HOUSE OF HELL 🏰 - Decision Tree Tracker"
+  # title = "🏰 HOUSE OF HELL 🏰 - Decision Tree Tracker"
   # len_title = len(title)
-  print(title)
-  print("🗡️"*21)
+  # print(title)
+  # print("🗡️"*21)
+  mansion_banner = """
+    ╭═══════════════════════════════════════════════════════════════╮
+    │     ⛈️    /\\                                        ⛈️        │
+    │          /  \\     ╭────────────     ────────────╮             │
+    │    ⚡   /    \\    │    🩸  HOUSE OF HELL  🩸    │      ⚡     │
+    │         \\    /    ╰────────────     ────────────╯             │
+    │          \\  /                                                 │
+    │     👹👹  \\/    ╭───     ╭───     ╭───     ╭───    👹👹       │
+    │                 │███│    │███│    │███│    │███│              │
+    │                 │███│    │███│    │███│    │███│              │
+    │                 ╰───╯    ╰───╯    ╰───╯    ╰───╯              │
+    │          Fighting Fantasy #10 - Decision Tree Tracker         │
+    ╰═══════════════════════════════════════════════════════════════╯
+  """
+  print(mansion_banner)
   print(
     "\nCommands: go <number>, overview, tree [root], back, edit <number>, quit"
   )
@@ -478,7 +504,10 @@ def main() -> None:
     
     if cmd[0].lower() == "quit":
       tracker.save_tree()
-      print("Tree saved. Goodbye! ☾")
+      print("╭═════════════════════ SESSION SAVED ════════════════════════╮")
+      print("│    💀  Beware... The house remembers your paths...  💀     │")
+      print("╰────────────────────────────────────────────────────────────╯")
+      # print("Tree saved. Goodbye! ☾")
       break
     elif cmd[0].lower() == "go" and len(cmd) == 2:
       try:
