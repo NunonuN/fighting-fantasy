@@ -13,6 +13,8 @@ class Node:
   complete: bool = False
   # choice_text -> paragraph_number
   children: Dict[str, int] = None
+  # how many child nodes visited
+  children_visited: int = 0
   
   def __post_init__(self):
     if self.children is None:
@@ -109,7 +111,7 @@ class HouseOfHellTracker:
   
 
   def go_to_paragraph(self, number: int) -> None:
-    """Navigate to a paragraph, tracking the path"""
+    """Navigate to a paragraph and track the path"""
     node = self.tree.get(number)
 
     # auto-edit if empty
@@ -126,7 +128,14 @@ class HouseOfHellTracker:
       print(f"New paragraph {number}. Please describe what happens here.")
       self.prompt_for_node(number)
 
-    # truncate path to number if going back
+    # increment children_visited count for PARENT node
+    if len(self.current_path) > 1:
+      parent_sum = self.current_path[-2]
+      parent_node = self.tree[parent_num]
+      if number in parent_node.children.values():
+        parent_node.children_visited += 1
+
+    # truncate path when going back
     try:
       idx = self.current_path.index(number)
       if idx < len(self.current_path) - 1:
@@ -370,9 +379,16 @@ class HouseOfHellTracker:
         return "💀"
       if node.battle:
         return "⚔️"
-      if node.complete:
+      if node.children:
+        # read but has unexplored children
+        return "📖"
+      if node.children_visited == len(node.children) and node.children:
+        # all children nodes explored
         return "✅"
-      # incomplete
+      if node.complete:
+        # leaf node, complete
+        return "✅"
+      # incomplete stub
       return "⚠️"
 
     def status_label(node:Node) -> str:
@@ -380,10 +396,13 @@ class HouseOfHellTracker:
         return "D"
       if node.battle:
         return "B"
+      if node.children:
+        return "P" # partial (unexplored children nodes)
+      if node.children_visited == len(node.children) and node.children:
+        return "F" # all children nodes explored
       if node.complete:
-        return "C"
-      # incomplete
-      return "I"
+        return "C" # complete leaf
+      return "I" # incomplete
 
     def marker(node_num:int) -> str:
       # highlight current path node
