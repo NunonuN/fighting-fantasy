@@ -455,9 +455,12 @@ class HouseOfHellTracker:
 
     # title = "\n💀 🗡️  HOUSE OF HELL TREE  🗡️ 💀\n"
     # print(title)
-    print("╭═════════════════ 💀 HOUSE OF HELL TREE 💀 ═════════════════╮")
-    print(f"│ Current paragraph: {self.current_path[-1]:<39} │")
-    print("╰────────────────────────────────────────────────────────────╯")
+    print("╭══════════════════ 💀 HOUSE OF HELL TREE 💀 ══════════════════╮")
+    print(f"│ Current paragraph: {self.current_path[-1]:<41} │")
+    print(f"│                                                              │")
+    print(f"│ LEGEND:                                                      │")
+    print(f"│ D: death │ B: battle │ V: visited │ I: incomplete │ L: loop  │")
+    print("╰──────────────────────────────────────────────────────────────╯")
 
     # track printed nodes
     visited = set()
@@ -503,7 +506,7 @@ class HouseOfHellTracker:
     def dfs(node_num:int, prefix:str="", is_last:bool=True) -> None:
       if node_num in visited:
         # skip cycles
-        print(f"{prefix}{'└──' if is_last else '├──'} [⭕ {node_num}] (LOOP)")
+        print(f"{prefix}{'└──' if is_last else '├──'} [⭕ {node_num}] (L)")
         return
       visited.add(node_num)
 
