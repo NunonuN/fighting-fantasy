@@ -73,27 +73,11 @@ class HouseOfHellTracker:
     }
     # write to temp file first
     temp_name = self.FILENAME + ".new"
-    # with tempfile.NamedTemporaryFile(
-    #   mode='w', suffix='.json', delete=False, encoding='utf-8'
-    # ) as temp_f:
-    #   json.dump(data, temp_f, indent=2, ensure_ascii=False)
-    #   temp_path = temp_f.name
-    # with open(self.FILENAME, "w", encoding="utf-8") as f:
-    #   json.dump(data, f, indent=2, ensure_ascii=False)
     with open(temp_name, 'w', encoding='utf-8') as f:
       json.dump(data, f, indent=2, ensure_ascii=False)
 
     # atomic rename/replace or create-if-missing
     shutil.move(temp_name, self.FILENAME)
-    # os.replace(temp_name, self.FILENAME)
-    # try:
-      # atomically replace the original
-      # os.replace(temp_name, self.FILENAME)
-      # shutil.move(temp_path, self.FILENAME)
-    # except Exception:
-      # cleanup temp file on failure
-      # os.unlink(temp_path)
-      # print("⚠️  Failed to save tree.")
   
 
   def add_or_update_node(
@@ -127,7 +111,6 @@ class HouseOfHellTracker:
     # auto-edit if empty
     if (
       node and
-      # not node.complete and
       not node.battle and
       not node.death and
       not node.children
@@ -139,55 +122,35 @@ class HouseOfHellTracker:
       self.prompt_for_node(number)
 
     old_path = self.current_path.copy()
-    # is_new_or_forward = False
     was_in_old_path = number in old_path
 
     # navigate
     if number not in self.tree:
       print(f"First visit to ¶{number}")
       self.current_path.append(number)
-      # is_new_or_forward = True
-    # elif number not in self.current_path:
-    #   print(f"Jump to visited ¶{number}")
-    #   self.current_path.append(number)
     else:
       try:
         idx = self.current_path.index(number)
         if idx < len(self.current_path) - 1:
-          # print(f"Going back to ¶{number}")
           self.current_path = self.current_path[:idx + 1]
         else:
           print(f"Revisiting ¶{number}")
           self.current_path.append(number)
-          # is_new_or_forward = True
       except ValueError:
-        # print(f"Jump to visited ¶{number}")
         self.current_path.append(number)
-        # is_new_or_forward = True
 
     # increment parent only on new/forward
-    # if is_new_or_forward and len(self.current_path) > 1:
-    # if len(self.current_path) > 1 and number not in old_path[:-1]:
     if not was_in_old_path and len(self.current_path) > 1:
       parent_num = self.current_path[-2]
       parent_node = self.tree[parent_num]
       if number in parent_node.children.values():
-        # parent_node.children_visited += 1
         parent_node.children_visited = min(
           parent_node.children_visited + 1,
           len(parent_node.children)
         )
 
-    # # remove any existing occurrences of this number from path
-    # while number in self.current_path:
-    #   self.current_path.remove(number)
-
-    # append paragraph number
-    # self.current_path.append(number)
-    
     # save old path
     self.path_history.append(old_path)
-
     self.display_status(number)
 
 
@@ -202,7 +165,6 @@ class HouseOfHellTracker:
       print(f"\033[30;43m¶{number:3d} ⚔️  BATTLE\033[0m")
     elif not node.complete:
       print(f"\033[93m¶{number:3d} ⚠️  INCOMPLETE\033[0m")
-    # elif node.children:
     elif (
       node.children and
       sum(
@@ -219,12 +181,6 @@ class HouseOfHellTracker:
       self.tree[child_num].complete
     )
     print(f"  Children: {len(node.children)} ({visited_count} visited)")
-    # visited_children = sum(
-    #   1 for child_num in node.children.values()
-    #   if child_num in self.tree and self.tree[child_num].complete
-    # )
-    # print(f"  Children: {len(node.children)} ({node.children_visited} visited)")
-    # print(f"  Children: {len(node.children)} ({visited_children} visited)")
 
     if node.children:
       for choice, next_num in sorted(node.children.items()):
@@ -232,23 +188,10 @@ class HouseOfHellTracker:
         marker_node = self.tree.get(next_num)
         marker = "" if marker_node and marker_node.complete else "⚠️"
         print(f"   → {choice:<20} ¶{next_num:3d} {marker}")
-        # if marker_node is None:
-        #   marker_node = Node(number=next_num, complete=False)
-        #   self.tree[next_num] = marker_node
-        #
-        # # marker = "" if self.tree.get(next_num, Node(next_num)).complete else "⚠️"
-        # marker = "" if marker_node.complete else "⚠️"
-        # print(f"    → {choice:<20} ¶{next_num:3d} {marker}")
-    # else:
-    #   print("  (No children defined yet.)")
   
 
   def prompt_for_node(self, number:int) -> None:
     """Interactive prompt to fill and edit node information"""
-    # always create/update node first
-    # marked as incomplete until editing finishes
-    # self.add_or_update_node(number, complete=False)
-
     existing = self.tree.get(number)
     print(f"\n--- Paragraph {number} ---")
 
@@ -280,7 +223,6 @@ class HouseOfHellTracker:
       print("3. Delete a single choice")
       print("4. Delete ALL choices")
       print("5. Delete this node completely")
-      # print("6. Finish editing")
       action = input("Enter choice (1-5, ENTER to finish): ").strip()
       
       # ENTER -> finish editing
@@ -317,10 +259,6 @@ class HouseOfHellTracker:
             break
           try:
             next_num = int(input("  Goes to paragraph: "))
-            # merge choices into existing children
-            # self.add_or_update_node(
-            #   number, choices={choice_text: next_num}, complete=False
-            # )
             self.add_or_update_node(
               number,
               battle=existing.battle,
@@ -330,7 +268,6 @@ class HouseOfHellTracker:
             )
           except ValueError:
             print("  Invalid paragraph number.")
-        # existing = self.tree.get(number)
       elif action == "3":
         # delete single choice
         existing = self.tree.get(number)
@@ -347,8 +284,6 @@ class HouseOfHellTracker:
             key_to_delete = choices_list[idx][0]
             del existing.children[key_to_delete]
             print("Choice deleted.")
-          # else:
-          #   print("Invalid choice number.")
         except ValueError:
           print("Invalid number.")
       elif action == "4":
@@ -371,22 +306,8 @@ class HouseOfHellTracker:
           print("Node deleted.")
           # leave editing
           return
-          # break
-      # elif action == "6":
-      #   break
       else:
         print("Please enter a number between 1 and 5 or press ENTER.")
-    
-    # # add choices
-    # while True:
-    #   choice_text = input("\nChoice text (or ENTER to finish): ").strip()
-    #   if not choice_text:
-    #     break
-    #   try:
-    #     next_num = int(input("Goes to paragraph: "))
-    #     self.add_or_update_node(number, choices={choice_text: next_num})
-    #   except ValueError:
-    #     print("Invalid paragraph number.")
     
     node = self.tree[number]
     # make node complete if info was added
@@ -405,10 +326,6 @@ class HouseOfHellTracker:
 
   def show_tree_overview(self) -> None:
     """Show overview of explored tree"""
-    # title = "\n📖 ═══  HOUSE OF 💀HELL💀 TREE OVERVIEW  ═══ 📖\n"
-    # print(title)
-    # print("🗡️".ljust(len_title - 19, '═'))
-    # print("=" * 50)
     print("╭═══════════════ ⚔️ HOUSE OF HELL OVERVIEW ⚔️ ═══════════════╮")
     
     deaths = sum(1 for node in self.tree.values() if node.death)
@@ -423,13 +340,7 @@ class HouseOfHellTracker:
       f"│  ⚠️  Incomplete: {incomplete:<3} │"
     )
     print("╰════════════════════════════════════════════════════════════╯")
-    # print(f"Total paragraphs: {len(self.tree)}")
-    # print(f"💀  Deaths: {deaths}")
-    # print(f"⚔️  Battles: {battles}")
-    # print(f"⚠️  Incomplete: {incomplete}")
-    
-    # print("\nCurrent path:", " → ".join(map(str, self.current_path[-5:])))
-    # print("\nCurrent path:", " → ".join(map(str, self.current_path)))
+
     if self.current_path:
       current = self.current_path[-1]
       highlighted_path = ' → '.join(
@@ -460,8 +371,6 @@ class HouseOfHellTracker:
       print(f"Root paragraph {root} is not in the tree yet.")
       return
 
-    # title = "\n💀 🗡️  HOUSE OF HELL TREE  🗡️ 💀\n"
-    # print(title)
     print("╭══════════════════ 💀 HOUSE OF HELL TREE 💀 ══════════════════╮")
     print(f"│ Current paragraph: {self.current_path[-1]:<41} │")
     print(f"│                                                              │")
@@ -507,7 +416,6 @@ class HouseOfHellTracker:
 
     def marker(node_num:int) -> str:
       # highlight current path node
-      # return " ⬅ current" if node_num in current_set else ""
       return " ⬅ current" if node_num == self.current_path[-1] else ""
     
     def dfs(node_num:int, prefix:str="", is_last:bool=True) -> None:
@@ -561,10 +469,6 @@ def main() -> None:
   """Main game loop"""
   tracker = HouseOfHellTracker()
   
-  # title = "🏰 HOUSE OF HELL 🏰 - Decision Tree Tracker"
-  # len_title = len(title)
-  # print(title)
-  # print("🗡️"*21)
   mansion_banner = """
     ╭═══════════════════════════════════════════════════════════════╮
     │     ⛈️                                                ⛈️      │
@@ -595,7 +499,6 @@ def main() -> None:
       print("╭═════════════════════ SESSION SAVED ════════════════════════╮")
       print("│    💀  Beware... The house remembers your paths...  💀     │")
       print("╰────────────────────────────────────────────────────────────╯")
-      # print("Tree saved. Goodbye! ☾")
       break
     elif cmd[0].lower() == "go" and len(cmd) == 2:
       try:
