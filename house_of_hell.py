@@ -64,6 +64,11 @@ class HouseOfHellTracker:
         self.current_path = []
 
 
+  def marker(self, node_num:int) -> str:
+    # highlight current path node
+    return " ⬅ current" if node_num == self.current_path[-1] else ""
+
+
   def save_tree(self) -> None:
     """Save decision tree and current path to file atomically"""
     data = {
@@ -95,6 +100,45 @@ class HouseOfHellTracker:
       # os.unlink(temp_path)
       # print("⚠️  Failed to save tree.")
   
+
+  def status_emoji(self, node:Node) -> str:
+    if node.death:
+      return "💀"
+    elif node.battle:
+      return "⚔️"
+    elif not node.complete:
+      return "⚠️"
+    elif node.children:
+      complete_children = sum(
+        1 for n in node.children.values()
+        if n in self.tree and self.tree[n].complete
+      )
+      if complete_children < len(node.children):
+        return "📖"
+      else:
+        return "✅"
+    else:
+      return "✅"
+
+
+  def status_label(self, node:Node) -> str:
+    if node.death:
+      return "D"
+    elif node.battle:
+      return "B"
+    elif not node.complete:
+      return "I"
+    elif node.children:
+      complete_children = sum(
+        1 for n in node.children.values()
+        if n in self.tree and self.tree[n].complete
+      )
+      if complete_children < len(node.children):
+        return "V"
+      else:
+        return "C"
+    else:
+      return "C"
 
   def add_or_update_node(
     self,
@@ -464,9 +508,9 @@ class HouseOfHellTracker:
     # print(title)
     print("╭══════════════════ 💀 HOUSE OF HELL TREE 💀 ══════════════════╮")
     print(f"│ Current paragraph: {self.current_path[-1]:<41} │")
-    print(f"│                                                              │")
-    print(f"│ LEGEND:                                                      │")
-    print(f"│ D: death │ B: battle │ V: visited │ I: incomplete │ L: loop  │")
+    print("│                                                              │")
+    print("│ LEGEND:                                                      │")
+    print("│ D: death │ B: battle │ V: visited │ I: incomplete │ L: loop  │")
     print("╰──────────────────────────────────────────────────────────────╯")
 
     # track printed nodes
@@ -475,40 +519,40 @@ class HouseOfHellTracker:
     # fast lookup for current path highlighting
     current_set = set(self.current_path)
 
-    def status_emoji(node:Node) -> str:
-      if node.death:
-        return "💀"
-      if node.battle:
-        return "⚔️"
-      if node.children:
-        # read but has unexplored children
-        return "📖"
-      if node.children_visited == len(node.children) and node.children:
-        # all children nodes explored
-        return "✅"
-      if node.complete:
-        # leaf node, complete
-        return "✅"
-      # incomplete stub
-      return "⚠️"
+    # def status_emoji(node:Node) -> str:
+    #   if node.death:
+    #     return "💀"
+    #   if node.battle:
+    #     return "⚔️"
+    #   if node.children:
+    #     # read but has unexplored children
+    #     return "📖"
+    #   if node.children_visited == len(node.children) and node.children:
+    #     # all children nodes explored
+    #     return "✅"
+    #   if node.complete:
+    #     # leaf node, complete
+    #     return "✅"
+    #   # incomplete stub
+    #   return "⚠️"
 
-    def status_label(node:Node) -> str:
-      if node.death:
-        return "D"
-      if node.battle:
-        return "B"
-      if node.children:
-        return "V" # visited (unexplored children nodes)
-      if node.children_visited == len(node.children) and node.children:
-        return "F" # all children nodes explored
-      if node.complete:
-        return "C" # complete leaf
-      return "I" # incomplete
+    # def status_label(node:Node) -> str:
+    #   if node.death:
+    #     return "D"
+    #   if node.battle:
+    #     return "B"
+    #   if node.children:
+    #     return "V" # visited (unexplored children nodes)
+    #   if node.children_visited == len(node.children) and node.children:
+    #     return "F" # all children nodes explored
+    #   if node.complete:
+    #     return "C" # complete leaf
+    #   return "I" # incomplete
 
-    def marker(node_num:int) -> str:
-      # highlight current path node
-      # return " ⬅ current" if node_num in current_set else ""
-      return " ⬅ current" if node_num == self.current_path[-1] else ""
+    # def marker(node_num:int) -> str:
+    #   # highlight current path node
+    #   # return " ⬅ current" if node_num in current_set else ""
+    #   return " ⬅ current" if node_num == self.current_path[-1] else ""
     
     def dfs(node_num:int, prefix:str="", is_last:bool=True) -> None:
       if node_num in visited:
@@ -524,9 +568,9 @@ class HouseOfHellTracker:
         self.tree[node_num] = node
 
       connector = "└──" if is_last else "├──"
-      emoji = status_emoji(node)
-      label = status_label(node)
-      print(f"{prefix}{connector} [{node_num}] {emoji} ({label}){marker(node_num)}")
+      emoji = self.status_emoji(node)
+      label = self.status_label(node)
+      print(f"{prefix}{connector} [{node_num}] {emoji} ({label}){self.marker(node_num)}")
 
       children_items = sorted(node.children.items(), key=lambda kv: kv[1])
       if not children_items:
@@ -546,7 +590,8 @@ class HouseOfHellTracker:
       self.tree[root] = root_node
 
     print(
-      f"[{root}] {status_emoji(root_node)} ({status_label(root_node)}) {marker(root)}"
+      f"[{root}] {self.status_emoji(root_node)} "
+      f"({self.status_label(root_node)}) {self.marker(root)}"
     )
     children_items = sorted(root_node.children.items(), key=lambda kv: kv[1])
 
