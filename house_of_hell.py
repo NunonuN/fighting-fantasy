@@ -199,7 +199,7 @@ class HouseOfHellTracker:
     if node.death:
       print(f"\033[30;41m¶{number:3d} 💀 DEATH\033[0m")
     elif node.battle:
-      print(f"\033[41m¶{number:3d} ⚔️  BATTLE\033[0m")
+      print(f"\033[30;43m¶{number:3d} ⚔️  BATTLE\033[0m")
     elif not node.complete:
       print(f"\033[93m¶{number:3d} ⚠️  INCOMPLETE\033[0m")
     # elif node.children:
@@ -318,8 +318,15 @@ class HouseOfHellTracker:
           try:
             next_num = int(input("  Goes to paragraph: "))
             # merge choices into existing children
+            # self.add_or_update_node(
+            #   number, choices={choice_text: next_num}, complete=False
+            # )
             self.add_or_update_node(
-              number, choices={choice_text: next_num}, complete=False
+              number,
+              battle=existing.battle,
+              death=existing.death,
+              choices={choice_text: next_num},
+              complete=False
             )
           except ValueError:
             print("  Invalid paragraph number.")
