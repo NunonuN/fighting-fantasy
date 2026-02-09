@@ -154,14 +154,14 @@ class HouseOfHellTracker:
       try:
         idx = self.current_path.index(number)
         if idx < len(self.current_path) - 1:
-          print(f"Going back to ¶{number}")
+          # print(f"Going back to ¶{number}")
           self.current_path = self.current_path[:idx + 1]
         else:
           print(f"Revisiting ¶{number}")
           self.current_path.append(number)
           # is_new_or_forward = True
       except ValueError:
-        print(f"Jump to visited ¶{number}")
+        # print(f"Jump to visited ¶{number}")
         self.current_path.append(number)
         # is_new_or_forward = True
 
@@ -195,31 +195,52 @@ class HouseOfHellTracker:
     """Display current paragraph status with colour coding"""
     node = self.tree[number]
     
+    # status print
     if node.death:
       print(f"\033[30;41m¶{number:3d} 💀 DEATH\033[0m")
     elif node.battle:
       print(f"\033[41m¶{number:3d} ⚔️  BATTLE\033[0m")
     elif not node.complete:
       print(f"\033[93m¶{number:3d} ⚠️  INCOMPLETE\033[0m")
-    elif node.children:
+    # elif node.children:
+    elif (
+      node.children and
+      sum(
+        1 for n in node.children.values() if self.tree.get(n, Node(n)).complete
+      ) < len(node.children)
+    ):
       print(f"\033[94m¶{number:3d} 📖  VISITED\033[0m")
     else:
       print(f"\033[92m¶{number:3d} ✅ COMPLETE\033[0m")
     
-    print(f"  Children: {len(node.children)} ({node.children_visited} visited)")
+    visited_count = sum(
+      1 for child_num in node.children.values()
+      if child_num in self.tree and
+      self.tree[child_num].complete
+    )
+    print(f"  Children: {len(node.children)} ({visited_count} visited)")
+    # visited_children = sum(
+    #   1 for child_num in node.children.values()
+    #   if child_num in self.tree and self.tree[child_num].complete
+    # )
+    # print(f"  Children: {len(node.children)} ({node.children_visited} visited)")
+    # print(f"  Children: {len(node.children)} ({visited_children} visited)")
+
     if node.children:
       for choice, next_num in sorted(node.children.items()):
         # ensure a Node exists for each child; if missing, create incomplete one
         marker_node = self.tree.get(next_num)
-        if marker_node is None:
-          marker_node = Node(number=next_num, complete=False)
-          self.tree[next_num] = marker_node
-
-        # marker = "" if self.tree.get(next_num, Node(next_num)).complete else "⚠️"
-        marker = "" if marker_node.complete else "⚠️"
-        print(f"    → {choice:<20} ¶{next_num:3d} {marker}")
-    else:
-      print("  (No children defined yet.)")
+        marker = "" if marker_node and marker_node.complete else "⚠️"
+        print(f"   → {choice:<20} ¶{next_num:3d} {marker}")
+        # if marker_node is None:
+        #   marker_node = Node(number=next_num, complete=False)
+        #   self.tree[next_num] = marker_node
+        #
+        # # marker = "" if self.tree.get(next_num, Node(next_num)).complete else "⚠️"
+        # marker = "" if marker_node.complete else "⚠️"
+        # print(f"    → {choice:<20} ¶{next_num:3d} {marker}")
+    # else:
+    #   print("  (No children defined yet.)")
   
 
   def prompt_for_node(self, number:int) -> None:
